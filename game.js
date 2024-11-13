@@ -23,6 +23,7 @@
 function setup() {
   createCanvas(800, 10000);
   background(255, 255, 255);
+  frameRate(40);
 }
 angleMode(DEGREES);
 
