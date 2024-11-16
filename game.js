@@ -6,10 +6,10 @@
  - a vampire
  - Graveyard
  - Moon
- - (scenario)
+ - stars
 
  THE MECHANICS
- - tap the screen to move the character up
+ - Move the character while landing
  - implement gravity
  - end the game if crashing
 
@@ -20,275 +20,296 @@
 //This code was taken from the lecture example of flappy bird provided by the master students
  
 
-function setup() {
-  createCanvas(800, 10000);
-  background(255, 255, 255);
-  frameRate(40);
+let x = 0;
+let y = 0;
+let s = 0.6;
+const speed = 5;
+let velocityY = 0;
+const gravity = 0.2;
+let state = "start";
+let gameTimer = 0;
+let stars = [];
+let characterX = 400;
+let characterY = 200;
+
+function setup(){
+    createCanvas(700, 750);
 }
-angleMode(DEGREES);
 
-let characterX = 100;
-let characterY = 100;
-let x = 100;
-let y = 100;
-const w = 100;
-const h = 100;
+for (let i = 0; i < 900; i++) {
+    const star = {
+        x: Math.floor(Math.random() * width),
+        y: Math.floor(Math.random() * height),
+        alpha: Math.random(),
+    };
+    stars.push(star);
+}
 
-// game logic variable
-let velocityY = 0.2;
-let acceleration = 0.2;
-
-// game state variables
-let gameState = true;
-
-
-
-function character(x,y){
-
-  //back part of the hair
+push();
+function character(x, y, s) {
+    angleMode(DEGREES);
+    
+  // back part of the hair
   push();
-  fill(0,0,0);
-  ellipse(x+100,y-25,w+20,h);
+  fill(0, 0, 0);
+  ellipse(x + 100 * s, y - 25 * s, 120 * s, 100 * s);
   pop();
-  
-  //wings or cape idk
+
+  // wings or cape
   push();
   beginShape();
-  fill(150,0,0);
-  strokeWeight(3);
-  //left 1
-  triangle(x+100,y+60,x-80,y+80,x-60,y+155);
-  //left2
-  triangle(x+100,y+60,x-60,y+155,x-30,y+220);
-  //left3
-  triangle(x+100,y+60,x-30,y+220,x+40,y+260);
-  //center
-  triangle(x+100,y+60,x+40,y+260,x+150,y+260);
-  //right3
-  triangle(x+100,y+60,x+230,y+220,x+150,y+260);
-  //right2
-  triangle(x+100,y+60,x+270,y+155,x+230,y+220);
-  //right1
-  triangle(x+100,y+60,x+290,y+80,x+270,y+155);
-  
+  fill(150, 0, 0);
+  strokeWeight(3 * s);
+  triangle(x + 100 * s, y + 60 * s, x - 80 * s, y + 80 * s, x - 60 * s, y + 155 * s);
+  triangle(x + 100 * s, y + 60 * s, x - 60 * s, y + 155 * s, x - 30 * s, y + 220 * s);
+  triangle(x + 100 * s, y + 60 * s, x - 30 * s, y + 220 * s, x + 40 * s, y + 260 * s);
+  triangle(x + 100 * s, y + 60 * s, x + 40 * s, y + 260 * s, x + 150 * s, y + 260 * s);
+  triangle(x + 100 * s, y + 60 * s, x + 230 * s, y + 220 * s, x + 150 * s, y + 260 * s);
+  triangle(x + 100 * s, y + 60 * s, x + 270 * s, y + 155 * s, x + 230 * s, y + 220 * s);
+  triangle(x + 100 * s, y + 60 * s, x + 290 * s, y + 80 * s, x + 270 * s, y + 155 * s);
   endShape();
   pop();
-  
-  //right foot
+
+  // right foot
   push();
-  fill(89,48,16);
-  translate(x+150,y+245);
+  fill(89, 48, 16);
+  translate(x + 150 * s, y + 245 * s);
   rotate(55);
-  ellipse(0,0,w-60,h-70);
+  ellipse(0, 0, 40 * s, 30 * s);
   pop();
-  endShape();
-  
-  //legs
-  
-  beginShape();
+
+  // legs
   push();
-  fill(0,0,0);
-  translate(x+70,y+170);
-  //left leg
+  fill(0, 0, 0);
+  translate(x + 70 * s, y + 170 * s);
   rotate(15);
-  rect(0,0,w-70,h+30);
+  rect(0, 0, 30 * s, 130 * s);
   pop();
-  //right leg
+
   push();
-  fill(0,0,0);
-  translate(x+100,y+140);
+  fill(0, 0, 0);
+  translate(x + 100 * s, y + 140 * s);
   rotate(-15);
-  rect(0,0,w-70,h+30,43);
+  rect(0, 0, 30 * s, 130 * s, 43 * s);
   pop();
-  endShape();
-  
+
+  // left arm
   push();
-  fill(0,0,0);
-  translate(x+28,y+75);
+  fill(0, 0, 0);
+  translate(x + 28 * s, y + 75 * s);
   rotate(70);
-  //left arm
-  ellipse(0,0,w-70,h+20);
+  ellipse(0, 0, 30 * s, 120 * s);
   pop();
-  
+
+  // right arm
   push();
-  fill(0,0,0);
-  rotate();
-  //right arm
-  translate(x+162,y+102);
+  fill(0, 0, 0);
+  translate(x + 162 * s, y + 102 * s);
   rotate(-35);
-  ellipse(0,0,w-70,h+20);
+  ellipse(0, 0, 30 * s, 120 * s);
   pop();
-  
-  //torso
+
+  // torso
   push();
-  fill(0,0,0);
-  rect(x+70,y+50,w-40,h+35);
+  fill(0, 0, 0);
+  rect(x + 70 * s, y + 50 * s, 60 * s, 135 * s);
   pop();
-  
+
+  // triangle on torso
   push();
-  fill(255,255,255);
-  triangle(x+80,y+50,x+120,y+50,x+100,y+100);
+  fill(255, 255, 255);
+  triangle(x + 80 * s, y + 50 * s, x + 120 * s, y + 50 * s, x + 100 * s, y + 100 * s);
   pop();
-  
-  //neck
+
+  // neck
   push();
-  fill(237,207,199);
-  ellipse(x+100,y+40,w-80,h-40);
+  fill(237, 207, 199);
+  ellipse(x + 100 * s, y + 40 * s, 20 * s, 60 * s);
   pop();
-  
-  //hands
+
+  // hands
   push();
-  fill(237,207,199);
-  //left hand
-  ellipse(x-22,y+90,w-70,h-75);
-  //right hand
-  ellipse(x+190,y+142,w-70,h-75);
+  fill(237, 207, 199);
+  ellipse(x - 22 * s, y + 90 * s, 30 * s, 25 * s);
+  ellipse(x + 190 * s, y + 142 * s, 30 * s, 25 * s);
   pop();
-  
-  //feet
-  beginShape();
-  //left foot
+
+  // feet
   push();
-  fill(89,48,16);
-  translate(x+50,y+300);
+  fill(89, 48, 16);
+  translate(x + 50 * s, y + 300 * s);
   rotate(15);
-  ellipse(0,0,w-60,h-70);
+  ellipse(0, 0, 40 * s, 30 * s);
   pop();
-  
-  //left ear
+
+  // ears
   push();
-  fill(237,207,199);
-  translate(x+50,y+10);
+  fill(237, 207, 199);
+  translate(x + 50 * s, y + 10 * s);
   rotate(-30);
-  ellipse(0,0,w-80, h-75);
+  ellipse(0, 0, 20 * s, 25 * s);
   pop();
-  
-  //right ear
+
   push();
-  fill(237,207,199);
-  translate(x+150,y+10);
+  fill(237, 207, 199);
+  translate(x + 150 * s, y + 10 * s);
   rotate(30);
-  ellipse(0,0,w-80, h-75);
+  ellipse(0, 0, 20 * s, 25 * s);
   pop();
-  
-  //Face base
+
+  // face base
   push();
-  fill(237,207,199);
-  ellipse(x+100,y-10,w, h+10);
+  fill(237, 207, 199);
+  ellipse(x + 100 * s, y - 10 * s, 100 * s, 110 * s);
   pop();
-  
-  //hair
+
+  // hair
   push();
-  fill(0,0,0);
-  triangle(x+54,y+9,x+48,y-10,x+55,y-40);
-  triangle(x+146,y+9,x+152,y-10,x+145,y-40);
-  rect(x+50,y-62,w,h-45,20);
-  ellipse(x+100,y-66,w-70,h-90);
+  fill(0, 0, 0);
+  triangle(x + 54 * s, y + 9 * s, x + 48 * s, y - 10 * s, x + 55 * s, y - 40 * s);
+  triangle(x + 146 * s, y + 9 * s, x + 152 * s, y - 10 * s, x + 145 * s, y - 40 * s);
+  rect(x + 50 * s, y - 62 * s, 100 * s, 55 * s, 20 * s);
+  ellipse(x + 100 * s, y - 66 * s, 30 * s, 10 * s);
+  fill(237, 207, 199);
   noStroke();
-  fill(237,207,199);
-  //little spaces between the hair
-  ellipse(x+100,y-15,w-96,h-50);
-  ellipse(x+80,y-16,w-98,h-90);
-  ellipse(x+130,y-11,w-98,h-80);
-  ellipse(x+63,y-11,w-98,h-80);
-  ellipse(x+80,y-16,w-98,h-90);
-  
+  ellipse(x + 100 * s, y - 15 * s, 4 * s, 30 * s);
+  ellipse(x + 70 * s, y - 15 * s, 4 * s, 30 * s);
+  ellipse(x + 130 * s, y - 11 * s, 5 * s, 40 * s);
   pop();
-  
-  noFill();
-  //eyebrows
-  //left eyebrow
-  beginShape();
-  vertex(x+70,y-20);
-  bezierVertex(x+75,y-25,x+90,y-20,x+90,y-20);
-  endShape();
-  
-  //right eyebrow
-  beginShape();
-  vertex(x+112,y-20);
-  
-  bezierVertex(x+117,y-20,x+120,y-25,x+132,y-20);
-  endShape();
-  
-  //eyes
-  
-  //left eye
+
+  // eyebrows
   push();
-  beginShape();
-  strokeWeight(0);
-  fill(255,255,255);
-  ellipse(x+80,y+4,w-80,h-80);
-  pop();
-  vertex(x+70,y);
   noFill();
-  strokeWeight(2);
-  bezierVertex(x+75,y-10,x+88,y-5,x+90,y);
-  push();
-  fill(255,121,0);
-  ellipse(x+80,y+2,w-90,h-85);
-  pop();
-  endShape();
-  
-  //white left eye
-  fill(255,255,255);
-  ellipse(x+78,y,w-95);
-  
-  //right eye
-  push();
-  fill(255,255,255);
   beginShape();
-  strokeWeight(0);
-  ellipse(x+122,y+4,w-80,h-80);
-  pop();
-  strokeWeight(2);
-  vertex(x+112,y);
-  noFill();
-  bezierVertex(x+117,y-10,x+132,y-5,x+132,y);
-  push();
-  fill(255,121,0);
-  ellipse(x+120,y+2,w-90,h-85);
-  pop();
+  vertex(x + 70 * s, y - 20 * s);
+  bezierVertex(x + 75 * s, y - 25 * s, x + 90 * s, y - 20 * s, x + 90 * s, y - 20 * s);
   endShape();
-  
-  //white right eye
-  fill(255);
-  ellipse(x+119,y,w-95);
-  
-  noFill();
-  
-  //mouth
   beginShape();
-  vertex(x+85,y+26);
-  bezierVertex(x+85,y+25,x+95,y+35,x+111,y+30);
-  triangle(x+85,y+26,x+89,y+28,x+87,y+32);
-  triangle(x+111,y+30,x+108,y+32,x+110,y+35);
+  vertex(x + 112 * s, y - 20 * s);
+  bezierVertex(x + 117 * s, y - 20 * s, x + 120 * s, y - 25 * s, x + 132 * s, y - 20 * s);
   endShape();
-  
-  //earring
-  fill(0,0,0);
-  rect(x+50,y+27,w-98,h-80);
-  rect(x+44,y+32,w-85,h-97);
-  
-  }
-  function draw() {
-    clear();
- 
-    // the character
-    character(characterX, characterY);
-  
-      // gravity logic
-      characterY = characterY + velocityY;
-      velocityY = velocityY + acceleration;
-  
-      // decrease the velocity when clicking
-      if (mouseIsPressed) {
-        velocityY = velocityY - 0.7;
-      }
-  
-      // ends the game when the character collides with the ground
-      if (characterY > 180) {
-        gameState = false;
-        console.log("die");
-      }
+  pop();
+
+  // eyes
+  push();
+  fill(255, 255, 255);
+  ellipse(x + 80 * s, y + 4 * s, 20 * s, 20 * s);
+  ellipse(x + 122 * s, y + 4 * s, 20 * s, 20 * s);
+  fill(255, 121, 0);
+  ellipse(x + 80 * s, y + 2 * s, 10 * s, 10 * s);
+  ellipse(x + 120 * s, y + 2 * s, 10 * s, 10 * s);
+  pop();
+
+  // mouth
+  push();
+  noFill();
+  beginShape();
+  vertex(x + 85 * s, y + 26 * s);
+  bezierVertex(x + 85 * s, y + 25 * s, x + 95 * s, y + 35 * s, x + 111 * s, y + 30 * s);
+  endShape();
+  pop();
+
+  // earring
+  push();
+  fill(0, 0, 0);
+  rect(x + 50 * s, y + 27 * s, 4 * s, 19 * s);
+  rect(x + 44 * s, y + 32 * s, 16 * s, 3 * s);
+  pop();
+}
+pop();
+
+function startScreen(){
+    background(0, 0, 50);
+    fill(255);
+    ellipse(350,100,122);
+    textSize(32);
+    textAlign(CENTER);
+    fill(255);
+    text("Press SPACE to Start", width / 2, height / 2);    
+}
+
+function ground(){
+    rect(0, 550, 700);
+}
+
+function gameScreen(){
+    background(0, 0, 0);
+    textSize(16);
+    fill(255);
+    text("Land safely!!", 250, 100);
+
+    push(); 
+    for (let star of stars){
+        
+        fill(255,255,255, Math.abs(Math.sin(star.alpha))*255);
+        noStroke();
+        fill(255);
+        ellipse(star.x, star.y, 2);
+        star.alpha = star.alpha + 0.02;
     }
+    pop();
+    ground();
+    character(characterX,characterY, s);
+}
   
+function resultScreenGameOver(){
+    background(255, 10, 10);
+    textSize(42);
+    fill(255);
+    text("Game Over", width / 2, height / 2);
+}
+ 
+function resultScreenWin(){
+    background(0, 255, 0);
+    textSize(42); 
+    fill(0,0,0);
+    text("YOU LANDED SUCCESSFULLY", width / 2, height / 2);
+}
+
+
+function draw() {
+
+    if (state === "start") {
+        startScreen();
+        if (keyIsDown(32)) { // spaceBar
+            state = "game";
+            gameTimer = 0;
+            y = 50; // restart position of character
+            velocityY = 0;
+        }
+    } else if (state === "game") {
+        
+        gameScreen();
+        
+        if (characterY > y + 500 && velocityY > 5) {
+            state = resultScreenGameOver();
+        } 
+        if (characterY > y + 500 && velocityY < 5) {
+            state = resultScreenWin();
+        } 
+
+        // Gravity 
+        velocityY += gravity; 
+        characterY += velocityY; 
+        console.log(velocityY);
+
+        // Controlling the character with 
+        if (keyIsDown(37)) { // Left
+            characterX -= speed;
+        } 
+        if (keyIsDown(39)) { // Right
+            characterX += speed;
+        }
+        if (keyIsDown(38)) { // Up
+            velocityY -= 0.5; // 
+        }
+       // character(characterX,characterY, s);
+    } else if (state === "result") { 
+        resultScreenGameOver();
+
+
+        if (keyIsDown(32)) { // SpaceBar
+            state = "start";
+        }
+    } 
+}
