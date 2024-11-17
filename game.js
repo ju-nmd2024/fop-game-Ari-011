@@ -1,51 +1,34 @@
-
-  
-
-/*
-  THE CONCEPT OF THE VISUALS
- - a vampire
- - Graveyard
- - Moon
- - stars
-
- THE MECHANICS
- - Move the character while landing
- - implement gravity
- - end the game if crashing
-
-  
- */
-
- 
-//This code was taken from the lecture example of flappy bird provided by the master students
- 
-
 let x = 0;
 let y = 0;
-let s = 0.6;
-const speed = 5;
+let s = 0.4;
+const speed = 2;
 let velocityY = 0;
 const gravity = 0.2;
 let state = "start";
-let gameTimer = 0;
 let stars = [];
-let characterX = 400;
-let characterY = 200;
+let characterX = 350;
+let characterY = 50;
+let canvasW = 700;
+let canvasH = 750;
 
-function setup(){
-    createCanvas(700, 750);
+let stone = { 
+    x: 350, 
+    y: 600, 
+    w: 100, 
+    h: 200 
+}; // landing stone
+
+function setup() {
+    createCanvas(canvasW, canvasH);
+    for (let i = 0; i < 900; i++) {
+        stars.push({
+            x: Math.floor(Math.random() * canvasW),
+            y: Math.floor(Math.random() * canvasH),
+            alpha: Math.random(),
+        });
+    }
 }
 
-for (let i = 0; i < 900; i++) {
-    const star = {
-        x: Math.floor(Math.random() * width),
-        y: Math.floor(Math.random() * height),
-        alpha: Math.random(),
-    };
-    stars.push(star);
-}
-
-push();
 function character(x, y, s) {
     angleMode(DEGREES);
     
@@ -216,100 +199,182 @@ function character(x, y, s) {
   rect(x + 44 * s, y + 32 * s, 16 * s, 3 * s);
   pop();
 }
-pop();
 
-function startScreen(){
+function startScreen() {
     background(0, 0, 50);
     fill(255);
-    ellipse(350,100,122);
     textSize(32);
     textAlign(CENTER);
+    text("Press SPACE to START", canvasW / 2, canvasH / 2 - 50);
+
     fill(255);
-    text("Press SPACE to Start", width / 2, height / 2);    
+    rect(275, 400, 150, 50, 50); 
+    fill(0);
+    textSize(20);
+    text("Rules", 350, 430);
 }
 
-function ground(){
-    rect(0, 550, 700);
+function rulesScreen() {
+    background(0);
+    fill(255);
+    textSize(25);
+    textAlign(CENTER);
+    text("Land the Vampire in the stone ", canvasW / 2, 150);
+    text("To move the character:", canvasW / 2, 200);
+    text("Up arrow to prevent free fall", canvasW / 2, 250);
+    text("Left arrow to move left", canvasW / 2, 300);
+    text("Right arrow to move right", canvasW / 2, 350);
+    text("Land on the ellipse with a speed below 5 to win!", canvasW / 2, 400);
+
+    fill(255);
+    rect(275, 520, 150, 50, 50); 
+    fill(0);
+    textSize(20);
+    text("Main Menu", 350, 550);
 }
 
-function gameScreen(){
-    background(0, 0, 0);
+function gameScreen() {
+    background(0);
+    fill(255);
     textSize(16);
-    fill(255);
-    text("Land safely!!", 250, 100);
+    text("Land safely!!", 350, 300);
 
-    push(); 
-    for (let star of stars){
-        
-        fill(255,255,255, Math.abs(Math.sin(star.alpha))*255);
+    for (let star of stars) {
+        fill(255, 255, 255, Math.abs(Math.sin(star.alpha)) * 255);
         noStroke();
-        fill(255);
         ellipse(star.x, star.y, 2);
-        star.alpha = star.alpha + 0.02;
+        star.alpha += 0.02;
     }
-    pop();
-    ground();
-    character(characterX,characterY, s);
+
+
+
+    //grass
+    fill(0,100,0);
+    rect(0,570,canvasW,canvasH);
+    
+    // Floor of the background
+    fill(100);
+    rect(0, 600, canvasW, canvasH - 550);
+
+    //Moon
+    fill(255);
+    ellipse(320,60,100);
+
+    // Stone for the correct landing
+    noStroke();
+    fill(100);
+    ellipse(stone.x, stone.y, stone.w, stone.h);
+    fill(0);
+    text("Still", 350, 540);
+    text("Alive", 350, 570);
+
+    //other stones
+    noStroke();
+    fill(100);
+    ellipse(100, 600, 100, 200);
+    ellipse(600, 600, 100, 200);
+    fill(0);
+    text("R.I.P",100,540);
+    text("R.I.P",600,540);
+
+    //grass
+    fill(0,100,0);
+    rect(0,590,canvasW,canvasH);
+
+    // Vampire
+    stroke(0);
+    character(characterX, characterY, s);
+    
 }
-  
-function resultScreenGameOver(){
-    background(255, 10, 10);
+
+function resultScreenGameOver() {
+    background(200, 10, 10);
     textSize(42);
     fill(255);
-    text("Game Over", width / 2, height / 2);
-}
- 
-function resultScreenWin(){
-    background(0, 255, 0);
-    textSize(42); 
-    fill(0,0,0);
-    text("YOU LANDED SUCCESSFULLY", width / 2, height / 2);
+    textAlign(CENTER);
+    text("Game Over", canvasW / 2, canvasH / 2 - 50);
+
+    fill(255);
+    rect(100, 520, 150, 50, 50); // Retry - Button
+    rect(450, 520, 150, 50, 50); // Main Menu - Button
+    fill(0);
+    textSize(20);
+    text("Retry", 175, 550);
+    text("Main Menu", 525, 550);
 }
 
+function resultScreenWin() {
+    background(0, 200, 0);
+    textSize(42);
+    fill(255);
+    textAlign(CENTER);
+    text("YOU LANDED SUCCESSFULLY", canvasW / 2, canvasH / 2 - 50);
+
+    fill(255);
+    rect(275, 520, 150, 50); // Main Menu - Button
+    fill(0);
+    textSize(20);
+    text("Main Menu", 350, 550);
+}
+
+function resetGame() {
+    state = "game";
+    characterX = canvasW / 2;
+    characterY = 50;
+    velocityY = 0;
+}
 
 function draw() {
-
     if (state === "start") {
         startScreen();
-        if (keyIsDown(32)) { // spaceBar
-            state = "game";
-            gameTimer = 0;
-            y = 50; // restart position of character
-            velocityY = 0;
+        if (keyIsDown(32)) {
+            resetGame();
         }
     } else if (state === "game") {
-        
         gameScreen();
-        
-        if (characterY > y + 500 && velocityY > 5) {
-            state = resultScreenGameOver();
-        } 
-        if (characterY > y + 500 && velocityY < 5) {
-            state = resultScreenWin();
-        } 
 
-        // Gravity 
-        velocityY += gravity; 
-        characterY += velocityY; 
-        console.log(velocityY);
+        velocityY += gravity;
+        characterY += velocityY;
 
-        // Controlling the character with 
-        if (keyIsDown(37)) { // Left
+        if (keyIsDown(37)) {
             characterX -= speed;
-        } 
-        if (keyIsDown(39)) { // Right
+        }
+        if (keyIsDown(39)) {
             characterX += speed;
         }
-        if (keyIsDown(38)) { // Up
-            velocityY -= 0.5; // 
+        if (keyIsDown(38)) {
+            velocityY -= gravity * 2.5 ;
         }
-       // character(characterX,characterY, s);
-    } else if (state === "result") { 
+
+        if (characterY >= 520 ){
+           if (velocityY < 5 && characterX > 260 && characterX < 370){
+            state = "win";
+          } else {
+           state = "lose"; 
+          }
+            }
+
+    } else if (state === "lose") {
         resultScreenGameOver();
+    } else if (state === "win") {
+        resultScreenWin();
+    } else if (state === "rules") {
+        rulesScreen();
+    }
+}
 
-
-        if (keyIsDown(32)) { // SpaceBar
+function mousePressed() {
+    if (state === "start" && mouseX > 275 && mouseX < 425 && mouseY > 400 && mouseY < 450) {
+        state = "rules";
+    } else if (state === "rules" && mouseX > 275 && mouseX < 425 && mouseY > 520 && mouseY < 570) {
+        state = "start";
+    } else if (state === "lose") {
+        if (mouseX > 100 && mouseX < 250 && mouseY > 520 && mouseY < 570) {
+            resetGame();
+        } else if (mouseX > 450 && mouseX < 600 && mouseY > 520 && mouseY < 570) {
             state = "start";
         }
-    } 
+    } else if (state === "win" && mouseX > 275 && mouseX < 425 && mouseY > 520 && mouseY < 570) {
+        state = "start";
+    }
 }
