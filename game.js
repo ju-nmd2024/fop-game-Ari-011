@@ -1,3 +1,10 @@
+/*The following code is based on the resources below:
+Lim, K .(Dec 15, 2021). *p5.js overview*
+p5.js .(n.d). *Reference* from: https://p5js.org/reference/
+Video lectures form Garrit Schaap: 
+Schaap, G. (n.d). *Foundations of Programming Video Lectures* from: https://pixelkind.github.io/foundationsofprogramming/
+*/
+
 let x = 0;
 let y = 0;
 let s = 0.4;
@@ -5,12 +12,14 @@ const speed = 2;
 let velocityY = 0;
 const gravity = 0.2;
 let state = "start";
+// variable to define arrays
 let stars = [];
 let characterX = 350;
 let characterY = 50;
 let canvasW = 700;
 let canvasH = 750;
 
+//properties of the stone
 let stone = { 
     x: 350, 
     y: 600, 
@@ -18,12 +27,18 @@ let stone = {
     h: 200 
 }; // landing stone
 
+/* The mechanics of this game consist on a character that is free falling 
+    it has to land carefully at the stone that says "Still Alive", if he lands on 
+    the other stones or if it lands with a velocity > 5 then is Game Over */
+
+
 function setup() {
     createCanvas(canvasW, canvasH);
     for (let i = 0; i < 900; i++) {
         stars.push({
             x: Math.floor(Math.random() * canvasW),
             y: Math.floor(Math.random() * canvasH),
+            //opacity of the stars
             alpha: Math.random(),
         });
     }
@@ -219,9 +234,10 @@ function rulesScreen() {
     fill(255);
     textSize(25);
     textAlign(CENTER);
-    text("Land the Vampire in the stone ", canvasW / 2, 150);
+    //text ("", x, y);
+    text("Land the Vampire in the stone 'Still Alive'", canvasW / 2, 150);
     text("To move the character:", canvasW / 2, 200);
-    text("Up arrow to prevent free fall", canvasW / 2, 250);
+    text("SPACE BAR to prevent free fall", canvasW / 2, 250);
     text("Left arrow to move left", canvasW / 2, 300);
     text("Right arrow to move right", canvasW / 2, 350);
     text("Land on the ellipse with a speed below 5 to win!", canvasW / 2, 400);
@@ -239,10 +255,15 @@ function gameScreen() {
     textSize(16);
     text("Land safely!!", 350, 300);
 
+
+    //loop 
     for (let star of stars) {
+        //returns the absolut value of a number --- sinus
         fill(255, 255, 255, Math.abs(Math.sin(star.alpha)) * 255);
         noStroke();
+        //variables of the star for creating the actual star
         ellipse(star.x, star.y, 2);
+        //function
         star.alpha += 0.02;
     }
 
@@ -333,6 +354,8 @@ function draw() {
     } else if (state === "game") {
         gameScreen();
 
+        //Gravity
+
         velocityY += gravity;
         characterY += velocityY;
 
@@ -342,7 +365,7 @@ function draw() {
         if (keyIsDown(39)) {
             characterX += speed;
         }
-        if (keyIsDown(38)) {
+        if (keyIsDown(32)) {
             velocityY -= gravity * 2.5 ;
         }
 
