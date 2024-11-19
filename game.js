@@ -235,12 +235,12 @@ function rulesScreen() {
     textSize(25);
     textAlign(CENTER);
     //text ("", x, y);
-    text("Land the Vampire in the stone 'Still Alive'", canvasW / 2, 150);
+    text("Land the Vampire on the stone 'Still Alive'", canvasW / 2, 150);
     text("To move the character:", canvasW / 2, 200);
     text("SPACE BAR to prevent free fall", canvasW / 2, 250);
     text("Left arrow to move left", canvasW / 2, 300);
     text("Right arrow to move right", canvasW / 2, 350);
-    text("Land on the ellipse with a speed below 5 to win!", canvasW / 2, 400);
+    text("Land on the stone with a speed below 5 to win!", canvasW / 2, 400);
 
     fill(255);
     rect(275, 520, 150, 50, 50); 
@@ -266,8 +266,6 @@ function gameScreen() {
         //function
         star.alpha += 0.02;
     }
-
-
 
     //grass
     fill(0,100,0);
